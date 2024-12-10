@@ -22,9 +22,12 @@ test_lib = []
 [dependencies]
 regex = "1.11.1"
 # Template dependencies
+itertools = "0.13.0"
 chrono = { version = "0.4.38", optional = true }
 dhat = { version = "0.3.3", optional = true }
 pico-args = "0.5.0"
 tinyjson = "2.5.1"
-
+aoc-parse = "0.2.18"
+rayon = "1.10.0"
+counter = "0.6.0"
 # Solution dependencies

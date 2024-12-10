@@ -2,60 +2,36 @@ use regex::Regex;
 
 advent_of_code::solution!(3);
 
-fn process_mul_expression(expression: &str, num_re: &Regex) -> Option<u32> {
-    let numbers: Vec<u32> = num_re
-        .find_iter(expression)
-        .filter_map(|m| m.as_str().parse::<u32>().ok())
-        .collect();
-
-    if let [a, b] = numbers.as_slice() {
-        Some(a * b)
-    } else {
-        None
-    }
-}
-
 pub fn part_one(input: &str) -> Option<u32> {
-    let re = Regex::new(r"mul\(\d{1,3},\d{1,3}\)").unwrap();
-    let num_re = Regex::new(r"\d{1,3}").unwrap();
-
-    let sum: u32 = re
-        .find_iter(input)
-        .filter_map(|cap| process_mul_expression(cap.as_str(), &num_re))
-        .sum();
-
-    Some(sum)
+    let re = Regex::new(r"mul\((\d+),(\d+)\)").ok()?;
+    let muls: Vec<_> = re
+        .captures_iter(input)
+        .map(|caps| {
+            let (_, [a, b]) = caps.extract();
+            (a.parse::<u32>().unwrap(), b.parse::<u32>().unwrap())
+        })
+        .collect();
+    Some(muls.iter().map(|(a, b)| a * b).sum())
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let re = Regex::new(r"do\(\)|don't\(\)|mul\(\d{1,3},\d{1,3}\)").unwrap();
-    let num_re = Regex::new(r"\d{1,3}").unwrap();
-
-    let mut enabled = true;
-    let mut first_mul_used = false;
-    let mut sum = 0;
-
-    for cap in re.find_iter(input) {
-        match cap.as_str() {
-            "do()" => enabled = true,
-            "don't()" => enabled = false,
-            instruction if instruction.starts_with("mul(") => {
-                if !first_mul_used {
-                    first_mul_used = true;
-                    if let Some(product) = process_mul_expression(instruction, &num_re) {
-                        sum += product;
-                    }
-                } else if enabled {
-                    if let Some(product) = process_mul_expression(instruction, &num_re) {
-                        sum += product;
-                    }
-                }
-            }
-            _ => {}
+    let re = Regex::new(r"mul\((?<a>\d+),(?<b>\d+)\)|(?<do>do\(\))|(?<dont>don\'t\(\))").unwrap();
+    let mut compute = true;
+    let mut total = 0;
+    for cap in re.captures_iter(input) {
+        if cap.name("do").is_some() {
+            compute = true
+        }
+        if cap.name("dont").is_some() {
+            compute = false
+        }
+        if cap.name("a").is_some() && compute {
+            let a = cap.name("a").unwrap().as_str().parse::<u32>().unwrap();
+            let b = cap.name("b").unwrap().as_str().parse::<u32>().unwrap();
+            total += a * b
         }
     }
-
-    Some(sum)
+    Some(total)
 }
 
 #[cfg(test)]

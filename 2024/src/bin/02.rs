@@ -1,57 +1,40 @@
-use advent_of_code::template::bootstrap;
+use aoc_parse::{parser, prelude::*};
+use itertools::Itertools;
 
 advent_of_code::solution!(2);
 
-fn is_safe(vec: &[u32]) -> bool {
-    let is_increasing = vec.windows(2).all(|pair| pair[0] < pair[1]);
-    let is_decreasing = vec.windows(2).all(|pair| pair[0] > pair[1]);
-    let diff_within_three = vec
-        .windows(2)
-        .all(|pair| (pair[0] as i32 - pair[1] as i32).abs() <= 3);
+pub fn part_one(input: &str) -> Option<usize> {
+    let p = parser!(lines(repeat_sep(i32, " ")));
+    let Ok(lines) = p.parse(input) else {
+        return None;
+    };
 
-    (is_increasing || is_decreasing) && diff_within_three
+    Some(lines.iter().filter(|line| is_safe(line)).count())
 }
 
-fn is_safe_with_dampener(vec: &[u32]) -> bool {
-    if is_safe(vec) {
-        return true;
-    }
+pub fn part_two(input: &str) -> Option<usize> {
+    let p = parser!(lines(repeat_sep(i32, " ")));
+    let Ok(lines) = p.parse(input) else {
+        return None;
+    };
 
-    for i in 0..vec.len() {
-        let mut temp_vec = vec.to_vec();
-        temp_vec.remove(i);
-        if is_safe(&temp_vec) {
-            return true;
-        }
-    }
-
-    false
+    Some(
+        lines
+            .iter()
+            .filter(|&line| {
+                (1..=line.len()).any(|i| {
+                    let dampened = &[&line[0..i - 1], &line[i..]].concat();
+                    is_safe(dampened)
+                })
+            })
+            .count(),
+    )
 }
 
-pub fn part_one(_input: &str) -> Option<u32> {
-    let a = bootstrap::parse_to_vec1(_input);
-    let mut sum = 0;
-
-    for i in 0..a.len() {
-        if is_safe(&a[i]) {
-            sum += 1;
-        }
-    }
-
-    Some(sum)
-}
-
-pub fn part_two(_input: &str) -> Option<u32> {
-    let a = bootstrap::parse_to_vec1(_input);
-    let mut sum = 0;
-
-    for i in 0..a.len() {
-        if is_safe_with_dampener(&a[i]) {
-            sum += 1;
-        }
-    }
-
-    Some(sum)
+fn is_safe(line: &Vec<i32>) -> bool {
+    let delta: Vec<i32> = line.iter().tuple_windows().map(|(a, b)| a - b).collect();
+    delta.iter().all(|x| (1..=3).contains(&(x.abs())))
+        && (delta.iter().all(|&x| x > 0) || delta.iter().all(|&x| x < 0))
 }
 
 #[cfg(test)]

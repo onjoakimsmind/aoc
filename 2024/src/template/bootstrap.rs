@@ -1,69 +1,14 @@
 use std::collections::HashMap;
 
-pub fn parse_to_vec(_input: &str) -> Vec<u32> {
-    let rows: Vec<&str> = _input.lines().collect();
-    rows.iter().filter_map(|&n| n.parse::<u32>().ok()).collect()
-}
-
-pub fn parse_to_vec1(input: &str) -> Vec<Vec<u32>> {
-    let rows: Vec<&str> = input.lines().collect();
-
-    rows.iter()
-        .map(|row| {
-            row.split_whitespace()
-                .filter_map(|num| num.parse::<u32>().ok())
-                .collect::<Vec<u32>>()
-        })
-        .collect::<Vec<Vec<u32>>>()
-}
-
-pub fn parse_to_vec2(_input: &str) -> (Vec<u32>, Vec<u32>) {
-    let mut a: Vec<u32> = vec![];
-    let mut b: Vec<u32> = vec![];
-    let rows: Vec<&str> = _input.lines().collect();
-
-    for row in rows {
-        let parts: Vec<&str> = row.split_whitespace().collect();
-
-        if parts.len() >= 2 {
-            if let Ok(num_a) = parts[0].parse::<u32>() {
-                a.push(num_a);
-            }
-            if let Ok(num_b) = parts[1].parse::<u32>() {
-                b.push(num_b);
-            }
-        }
-    }
-    a.sort();
-    b.sort();
-
-    (a, b)
-}
-
-pub fn parse_to_grid(_input: &str) -> Vec<Vec<char>> {
-    let grid = _input
-        .lines()
-        .filter(|line| !line.trim().is_empty()) // Remove empty lines if present
-        .map(|line| {
-            line.chars()
-                .map(|c| c) // Convert each char to a String
-                .collect()
-        })
-        .collect();
-
-    grid
-}
-
 #[derive(Hash, Debug, Clone, Eq, PartialEq, Default)]
 pub struct Coord {
-    x: isize,
-    y: isize,
+    pub x: isize,
+    pub y: isize,
 }
 
-#[derive(Debug)]
-
+#[derive(Debug, Clone)]
 pub struct Grid<T> {
-    container: HashMap<Coord, T>,
+    pub container: HashMap<Coord, T>,
     pub height: usize,
     pub width: usize,
 }
@@ -120,6 +65,10 @@ impl<T> Grid<T> {
     }
     pub fn southeast(&self, x: isize, y: isize) -> Option<&T> {
         self.container.get(&Coord { x: x + 1, y: y + 1 })
+    }
+
+    pub fn is_in(&self, x: isize, y: isize) -> bool {
+        (0..self.width as isize).contains(&x) && (0..self.height as isize).contains(&y)
     }
 }
 

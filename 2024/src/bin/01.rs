@@ -1,31 +1,35 @@
-use advent_of_code::template::bootstrap;
-
 advent_of_code::solution!(1);
+use aoc_parse::{parser, prelude::*};
+use counter::Counter;
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let (a, b) = bootstrap::parse_to_vec2(input);
+    let p = parser!(lines(u32 "   "  u32));
+    let lines = p.parse(input).unwrap();
 
-    let mut sum = 0;
+    let mut left = Vec::new();
+    let mut right = Vec::new();
 
-    for i in 0..a.len() {
-        if a[i] < b[i] {
-            sum += b[i] - a[i];
-        } else {
-            sum += a[i] - b[i];
-        }
+    for (a, b) in lines {
+        left.push(a);
+        right.push(b);
     }
-    Some(sum)
+    left.sort();
+    right.sort();
+    Some(left.iter().zip(right).map(|(a, b)| a.abs_diff(b)).sum())
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
-    let (a, b) = bootstrap::parse_to_vec2(input);
-    let mut sum = 0;
+pub fn part_two(input: &str) -> Option<usize> {
+    let p = parser!(lines(usize "   "  usize));
 
-    for i in 0..a.len() {
-        sum += a[i] * b.iter().filter(|&n| *n == a[i]).count() as u32;
+    let mut left = Vec::new();
+    let mut right = Counter::<usize>::new();
+
+    for (a, b) in p.parse(input).unwrap() {
+        left.push(a);
+        right[&b] += 1;
     }
 
-    Some(sum)
+    Some(left.iter().map(|a| a * right.get(a).unwrap_or(&0)).sum())
 }
 
 #[cfg(test)]

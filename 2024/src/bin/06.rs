@@ -1,167 +1,107 @@
-use advent_of_code::template::bootstrap::parse_to_grid;
 use std::collections::HashSet;
 
+// use aoc_parse::{parser, prelude::*};
+// use itertools::Itertools;
+use advent_of_code::template::bootstrap::{Coord, Grid};
+
 advent_of_code::solution!(6);
-#[derive(Clone, Copy, Debug)]
-enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-}
 
-fn find_arrow(grid: &Vec<Vec<char>>) -> Option<(usize, usize, char)> {
-    for (row_index, row) in grid.iter().enumerate() {
-        for (col_index, &ch) in row.iter().enumerate() {
-            if matches!(ch, '^' | '>' | 'V' | '<') {
-                return Some((row_index, col_index, ch));
-            }
-        }
-    }
-    None
-}
+pub fn part_one(input: &str) -> Option<usize> {
+    let grid: Grid<char> = input.chars().collect();
+    let index = input
+        .find(|c: char| ['^', '>', '<', 'v'].contains(&c))
+        .unwrap();
+    let y = (index / (grid.width + 1)) as isize;
+    let x = (index % (grid.width + 1)) as isize;
+    let (dx, dy) = match grid.get(x, y).unwrap() {
+        '^' => (0, -1),
+        '>' => (1, 0),
+        'v' => (0, 1),
+        '<' => (-1, 0),
+        _ => unreachable!(),
+    };
 
-fn walk(
-    direction: Direction,
-    grid: &Vec<Vec<char>>,
-    start: (usize, usize),
-    positions: &mut HashSet<(usize, usize)>,
-) {
-    let (mut row, mut col) = start;
-
-    // Add the starting position to the HashSet
-    positions.insert((row, col));
-
-    match direction {
-        Direction::Up => {
-            while row > 0 {
-                if grid[row - 1][col] == '#' {
-                    walk(Direction::Right, grid, (row, col), positions);
-                    return;
-                }
-                row -= 1;
-                positions.insert((row, col));
-            }
-        }
-        Direction::Down => {
-            while row + 1 < grid.len() {
-                if grid[row + 1][col] == '#' {
-                    walk(Direction::Left, grid, (row, col), positions);
-                    return;
-                }
-                row += 1;
-                positions.insert((row, col));
-            }
-        }
-        Direction::Left => {
-            while col > 0 {
-                if grid[row][col - 1] == '#' {
-                    walk(Direction::Up, grid, (row, col), positions);
-                    return;
-                }
-                col -= 1;
-                positions.insert((row, col));
-            }
-        }
-        Direction::Right => {
-            while col + 1 < grid[row].len() {
-                if grid[row][col + 1] == '#' {
-                    walk(Direction::Down, grid, (row, col), positions);
-                    return;
-                }
-                col += 1;
-                positions.insert((row, col));
-            }
-        }
+    match patrol(&grid, x, y, dx, dy) {
+        Outcome::Exited(visited) => return Some(visited.len()),
+        Outcome::Looping => return None,
     }
 }
 
-fn simulate_walk(
-    direction: Direction,
-    grid: &Vec<Vec<char>>,
-    start: (usize, usize),
-    visited: &mut HashSet<(usize, usize)>,
-) {
-    let (mut row, mut col) = start;
-    let mut current_direction = direction;
+fn rotate(dx: isize, dy: isize) -> (isize, isize) {
+    match (dx, dy) {
+        (0, -1) => (1, 0),
+        (1, 0) => (0, 1),
+        (0, 1) => (-1, 0),
+        (-1, 0) => (0, -1),
+        _ => unreachable!(),
+    }
+}
 
-    visited.insert((row, col));
+enum Outcome {
+    Exited(Vec<(isize, isize)>),
+    Looping,
+}
+
+fn patrol(grid: &Grid<char>, sx: isize, sy: isize, dx: isize, dy: isize) -> Outcome {
+    let mut visited = HashSet::<(isize, isize, isize, isize)>::new();
+
+    let mut x = sx;
+    let mut y = sy;
+    let mut dx = dx;
+    let mut dy = dy;
 
     loop {
-        match current_direction {
-            Direction::Up => {
-                if row > 0 && grid[row - 1][col] != '#' {
-                    row -= 1;
-                } else {
-                    current_direction = Direction::Right;
+        visited.insert((x, y, dx, dy));
+        match grid.get(x + dx, y + dy) {
+            None => {
+                let cells: HashSet<(isize, isize)> =
+                    visited.iter().map(|(x, y, _, _)| (*x, *y)).collect();
+                return Outcome::Exited(cells.iter().map(|(x, y)| (*x, *y)).collect());
+            }
+            Some('#') => {
+                (dx, dy) = rotate(dx, dy);
+                if visited.contains(&(x, y, dx, dy)) {
+                    return Outcome::Looping;
                 }
             }
-            Direction::Down => {
-                if row + 1 < grid.len() && grid[row + 1][col] != '#' {
-                    row += 1;
-                } else {
-                    current_direction = Direction::Left;
-                }
+            _ => {
+                x += dx;
+                y += dy;
             }
-            Direction::Left => {
-                if col > 0 && grid[row][col - 1] != '#' {
-                    col -= 1;
-                } else {
-                    current_direction = Direction::Up;
-                }
-            }
-            Direction::Right => {
-                if col + 1 < grid[row].len() && grid[row][col + 1] != '#' {
-                    col += 1;
-                } else {
-                    current_direction = Direction::Down;
-                }
-            }
-        }
-        // if !visited.insert((row, col)) {
-        //     break;
-        // }
-
-        if row == 0 || row == grid.len() - 1 || col == 0 || col == grid[row].len() - 1 {
-            break;
         }
     }
 }
+pub fn part_two(input: &str) -> Option<usize> {
+    let mut grid: Grid<char> = input.chars().collect();
+    let index = input
+        .find(|c: char| ['^', '>', '<', 'v'].contains(&c))
+        .unwrap();
+    let sy = (index / (grid.width + 1)) as isize;
+    let sx = (index % (grid.width + 1)) as isize;
+    let (dx, dy) = match grid.get(sx, sy).unwrap() {
+        '^' => (0, -1),
+        '>' => (1, 0),
+        'v' => (0, 1),
+        '<' => (-1, 0),
+        _ => unreachable!(),
+    };
+    let mut count = 0;
 
-pub fn part_one(_input: &str) -> Option<u32> {
-    let grid = parse_to_grid(_input);
-    let mut positions: HashSet<(usize, usize)> = HashSet::new();
+    let Outcome::Exited(visited) = patrol(&grid, sx, sy, dx, dy) else {
+        return None;
+    };
 
-    match find_arrow(&grid) {
-        Some((row, col, ch)) => match ch {
-            '^' => walk(Direction::Up, &grid, (row, col), &mut positions),
-            '>' => walk(Direction::Right, &grid, (row, col), &mut positions),
-            'V' => walk(Direction::Down, &grid, (row, col), &mut positions),
-            '<' => walk(Direction::Left, &grid, (row, col), &mut positions),
-            _ => (),
-        },
-        None => println!("No arrow characters found"),
+    for (x, y) in visited {
+        if x != sx || y != sy {
+            grid.container.insert(Coord { x, y }, '#');
+            match patrol(&grid, sx, sy, dx, dy) {
+                Outcome::Exited(_) => (),
+                Outcome::Looping => count += 1,
+            }
+            grid.container.insert(Coord { x, y }, '.');
+        }
     }
-
-    println!("Total steps: {}", positions.len());
-    Some(positions.len() as u32)
-}
-
-pub fn part_two(_input: &str) -> Option<u32> {
-    let grid = parse_to_grid(_input);
-    let mut visited: HashSet<(usize, usize)> = HashSet::new();
-    match find_arrow(&grid) {
-        Some((row, col, ch)) => match ch {
-            '^' => simulate_walk(Direction::Up, &grid, (row, col), &mut visited),
-            '>' => simulate_walk(Direction::Right, &grid, (row, col), &mut visited),
-            'V' => simulate_walk(Direction::Down, &grid, (row, col), &mut visited),
-            '<' => simulate_walk(Direction::Left, &grid, (row, col), &mut visited),
-            _ => (),
-        },
-        None => println!("No arrow characters found"),
-    }
-
-    Some(visited.len() as u32)
+    Some(count)
 }
 
 #[cfg(test)]
