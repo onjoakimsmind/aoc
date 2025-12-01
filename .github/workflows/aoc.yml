@@ -1,0 +1,89 @@
+name: Advent of Code
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Year (e.g., 2025)'
+        required: true
+        default: '2025'
+      day:
+        description: 'Day (1-25)'
+        required: true
+        default: '1'
+
+jobs:
+  run-aoc:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        extensions: mbstring, curl
+        coverage: none
+    
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+    
+    - name: Create .env file
+      run: |
+        echo "AOC_SESSION=${{ secrets.AOC_SESSION }}" > .env
+    
+    - name: Determine year and day
+      id: date
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          YEAR="${{ github.event.inputs.year }}"
+          DAY="${{ github.event.inputs.day }}"
+        else
+          # Auto-detect from current date (December only)
+          CURRENT_MONTH=$(date +%m)
+          if [ "$CURRENT_MONTH" = "12" ]; then
+            YEAR=$(date +%Y)
+            DAY=$(date +%d | sed 's/^0*//')
+          else
+            YEAR="2025"
+            DAY="1"
+          fi
+        fi
+        echo "year=$YEAR" >> $GITHUB_OUTPUT
+        echo "day=$DAY" >> $GITHUB_OUTPUT
+        echo "Running for Year: $YEAR, Day: $DAY"
+    
+    - name: Create puzzle files
+      run: php aoc create ${{ steps.date.outputs.year }}/${{ steps.date.outputs.day }}
+    
+    - name: Fetch puzzle input
+      run: php aoc fetch ${{ steps.date.outputs.year }}/${{ steps.date.outputs.day }}
+      env:
+        AOC_SESSION: ${{ secrets.AOC_SESSION }}
+    
+    - name: Run tests
+      run: |
+        if [ -f "${{ steps.date.outputs.year }}/$(printf '%02d' ${{ steps.date.outputs.day }})/test.txt" ]; then
+          php aoc test ${{ steps.date.outputs.year }}/${{ steps.date.outputs.day }} || true
+        else
+          echo "No test file found, skipping tests"
+        fi
+    
+    - name: Run solution
+      run: php aoc run ${{ steps.date.outputs.year }}/${{ steps.date.outputs.day }}
+    
+    - name: Display results
+      if: always()
+      run: |
+        echo "=== Advent of Code Results ==="
+        echo "Year: ${{ steps.date.outputs.year }}"
+        echo "Day: ${{ steps.date.outputs.day }}"
+        echo ""
+        echo "Output files:"
+        ls -la ${{ steps.date.outputs.year }}/$(printf '%02d' ${{ steps.date.outputs.day }})/ || true
