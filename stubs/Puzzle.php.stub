@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Year{YEAR}\Day{DAY};
+namespace Y{YEAR}\D{DAY};
 
 use Aoc\Testing\TestRunner;
 
@@ -23,8 +23,7 @@ class {PUZZLE}
 
     public function test(TestRunner $t, string $testInput): void
     {
-        // TODO: Add test cases for part {Puzzle}
-        // $t->assertEquals(expected, (new A($testInput))->solve(), 'Part {PUZZLE}');
+        $t->assertEquals(0, (new {PUZZLE}($testInput))->solve(), 'Part {PUZZLE}');
     }
 }
 

@@ -36,7 +36,7 @@ class TestCommand extends Command
         $testInput = file_get_contents($testInputPath);
         $runner = new \Aoc\Testing\TestRunner();
         
-        $namespace = sprintf('Year%d\\Day%02d', $this->year, $this->day);
+        $namespace = sprintf('Y%d\\D%02d', $this->year, $this->day);
         $parts = $this->part ? [$this->part] : ['A', 'B'];
 
         try {

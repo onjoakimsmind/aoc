@@ -36,7 +36,7 @@ class RunCommand extends Command
         }
         echo "...\n" . Color::RESET;
 
-        $namespace = sprintf('Year%d\\Day%02d', $this->year, $this->day);
+        $namespace = sprintf('Y%d\\D%02d', $this->year, $this->day);
 
         foreach ($parts as $part) {
             $partFile = $dayDir . "/{$part}.php";
