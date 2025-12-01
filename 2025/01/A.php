@@ -41,11 +41,6 @@ class A
 
     public function test(TestRunner $t, string $testInput): void
     {
-        $t->assertEquals(3, (new A($testInput))->solve(), 'Part A');
+        $t->assertEquals(3, $this->solve(), 'Part A');
     }
-}
-
-function test(TestRunner $t, string $testInput): void
-{
-    (new A($testInput))->test($t, $testInput);
 }

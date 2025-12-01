@@ -59,14 +59,12 @@ class TestRunner
     public function printResults(): void
     {
         $total = $this->passed + $this->failed;
-        
         if ($this->failed === 0) {
             echo Color::BOLD . Color::GREEN . "✓ All tests passed! " . Color::RESET;
             echo "({$this->passed}/{$total})\n";
         } else {
             echo Color::BOLD . Color::RED . "✗ {$this->failed} test(s) failed! " . Color::RESET;
             echo "({$this->passed}/{$total} passed)\n\n";
-            
             foreach ($this->failures as $i => $failure) {
                 echo Color::RED . "Failure " . ($i + 1) . ": " . Color::RESET . $failure['message'] . "\n";
                 echo "  Expected: " . Color::GREEN . $this->formatValue($failure['expected']) . Color::RESET . "\n";

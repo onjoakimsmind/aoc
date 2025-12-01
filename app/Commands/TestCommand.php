@@ -27,20 +27,16 @@ class TestCommand extends Command
             return 1;
         }
 
-        echo Color::CYAN . "Running tests for {$this->year} day {$this->day}";
-        if ($this->part) {
-            echo " (part {$this->part})";
-        }
-        echo "...\n" . Color::RESET;
-        
         $testInput = file_get_contents($testInputPath);
-        $runner = new \Aoc\Testing\TestRunner();
-        
         $namespace = sprintf('Y%d\\D%02d', $this->year, $this->day);
         $parts = $this->part ? [$this->part] : ['A', 'B'];
+        $totalPassed = 0;
+        $totalFailed = 0;
+        $hasAnyFailures = false;
 
         try {
             foreach ($parts as $part) {
+                echo Color::CYAN . "Running tests for {$this->year} day {$this->day} (part {$part})...\n" . Color::RESET;
                 $partFile = $dayDir . "/{$part}.php";
                 if (!file_exists($partFile)) {
                     echo Color::RED . "Error: " . Color::RESET . "File not found: {$partFile}\n";
@@ -54,18 +50,31 @@ class TestCommand extends Command
                     echo Color::RED . "Error: " . Color::RESET . "Class {$className} not found\n";
                     return 1;
                 }
-                
                 $instance = new $className($testInput);
                 if (!method_exists($instance, 'test')) {
                     echo Color::RED . "Error: " . Color::RESET . "test() method not found in class {$part}\n";
                     return 1;
                 }
-                
+                // Create separate test runner for each part
+                $runner = new \Aoc\Testing\TestRunner();
                 $instance->test($runner, $testInput);
+                $runner->printResults();
+                $totalPassed += $runner->getPassed();
+                $totalFailed += $runner->getFailed();
+                if ($runner->hasFailures()) {
+                    $hasAnyFailures = true;
+                }
+                echo "\n";
             }
-            
-            $runner->printResults();
-            return $runner->hasFailures() ? 1 : 0;
+            // Print summary if running both parts
+            if (count($parts) > 1) {
+                $total = $totalPassed + $totalFailed;
+                echo Color::BOLD . Color::CYAN . "=== Test Summary ===" . Color::RESET . "\n";
+                echo "Total: {$total} test(s), ";
+                echo Color::GREEN . "{$totalPassed} passed" . Color::RESET . ", ";
+                echo Color::RED . "{$totalFailed} failed" . Color::RESET . "\n";
+            }
+            return $hasAnyFailures ? 1 : 0;
         } catch (\Throwable $e) {
             echo Color::BOLD . Color::RED . "✗ Test error: " . Color::RESET . $e->getMessage() . "\n";
             echo Color::DARK_GRAY . "  in {$e->getFile()}:{$e->getLine()}\n" . Color::RESET;

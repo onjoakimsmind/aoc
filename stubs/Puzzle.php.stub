@@ -23,11 +23,6 @@ class {PUZZLE}
 
     public function test(TestRunner $t, string $testInput): void
     {
-        $t->assertEquals(0, (new {PUZZLE}($testInput))->solve(), 'Part {PUZZLE}');
+        $t->assertEquals(0, $this->solve(), 'Part {PUZZLE}');
     }
-}
-
-function test(TestRunner $t, string $testInput): void
-{
-    (new {PUZZLE}($testInput))->test($t, $testInput);
 }

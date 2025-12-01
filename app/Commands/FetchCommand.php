@@ -14,12 +14,12 @@ class FetchCommand extends Command
     {
         $stubPath = dirname(__DIR__, 2) . '/stubs/Puzzle.php.stub';
         $content = file_get_contents($stubPath);
-        
+
         // Replace placeholders
         $content = str_replace('{PUZZLE}', $part, $content);
         $content = str_replace('{YEAR}', (string)$this->year, $content);
         $content = str_replace('{DAY}', sprintf('%02d', $this->day), $content);
-        
+
         file_put_contents($path, $content);
     }
 
@@ -81,7 +81,6 @@ class FetchCommand extends Command
 
         // Fetch input from Advent of Code
         $url = "https://adventofcode.com/{$this->year}/day/{$this->day}/input";
-        
         try {
             $client = new Client();
             $response = $client->get($url, [
