@@ -1,3 +1,5 @@
+[![Advent of Code](https://github.com/onjoakimsmind/aoc/actions/workflows/aoc.yml/badge.svg)](https://github.com/onjoakimsmind/aoc/actions/workflows/aoc.yml)
+
 # Advent of Code Wrapper (PHP)
 
 A command-line wrapper for solving Advent of Code puzzles with automatic input fetching and organized structure.

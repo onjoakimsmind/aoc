@@ -3,8 +3,20 @@ name: Advent of Code
 on:
   push:
     branches: [ main, master ]
+    paths:
+      - '[0-9][0-9][0-9][0-9]/[0-9][0-9]/**'
+      - 'app/**'
+      - 'composer.json'
+      - 'composer.lock'
+      - '.github/workflows/aoc.yml'
   pull_request:
     branches: [ main, master ]
+    paths:
+      - '[0-9][0-9][0-9][0-9]/[0-9][0-9]/**'
+      - 'app/**'
+      - 'composer.json'
+      - 'composer.lock'
+      - '.github/workflows/aoc.yml'
   workflow_dispatch:
     inputs:
       year:
