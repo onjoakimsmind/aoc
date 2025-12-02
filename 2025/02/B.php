@@ -1,0 +1,51 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Y2025\D02;
+
+use Aoc\Testing\TestRunner;
+
+class B
+{
+    private string $inputData;
+
+    public function __construct(string $inputData)
+    {
+        $this->inputData = trim($inputData);
+    }
+
+    public function solve(): int
+    {
+        $input = explode(",", $this->inputData);
+        $invalid = [];
+        $sum = 0;
+        foreach ($input as $i => $value) {
+            $value = trim($value);
+            if ($value === '') {
+                continue;
+            }
+
+            [$start, $end] = explode("-", $value);
+            for ($j = (int)$start; $j <= (int)$end; $j++) {
+                if ($this->isRepeatedPatternAtLeastTwice($j)) {
+                    $invalid[] = $j;
+                    $sum += $j;
+                }
+            }
+        }
+
+        return $sum;
+    }
+
+    public function test(TestRunner $t, string $testInput): void
+    {
+        $t->assertEquals(4174379265, $this->solve(), 'Part B');
+    }
+
+    private function isRepeatedPatternAtLeastTwice(int $n): bool
+    {
+        $s = (string) $n;
+        return (bool) preg_match('/^(\d+)\1+$/', $s);
+    }
+}
