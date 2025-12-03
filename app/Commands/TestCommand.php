@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aoc\Commands;
+namespace AoC\Commands;
 
 use Codedungeon\PHPCliColors\Color;
 
@@ -28,7 +28,7 @@ class TestCommand extends Command
         }
 
         $testInput = file_get_contents($testInputPath);
-        $namespace = sprintf('Y%d\\D%02d', $this->year, $this->day);
+        $namespace = sprintf('AoC\\Solutions\\Y%d\\D%02d', $this->year, $this->day);
         $parts = $this->part ? [$this->part] : ['A', 'B'];
         $totalPassed = 0;
         $totalFailed = 0;
@@ -56,7 +56,7 @@ class TestCommand extends Command
                     return 1;
                 }
                 // Create separate test runner for each part
-                $runner = new \Aoc\Testing\TestRunner();
+                $runner = new \AoC\Testing\TestRunner();
                 $instance->test($runner, $testInput);
                 $runner->printResults();
                 $totalPassed += $runner->getPassed();

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aoc\Commands;
+namespace AoC\Commands;
 
 abstract class Command
 {
@@ -24,16 +24,16 @@ abstract class Command
 
     protected function getInputPath(): string
     {
-        return sprintf('%s/%d/%02d/input.txt', dirname(__DIR__, 2), $this->year, $this->day);
+        return sprintf('%s/app/Solutions/%d/%02d/input.txt', dirname(__DIR__, 2), $this->year, $this->day);
     }
 
     protected function getDayDirectory(): string
     {
-        return sprintf('%s/%d/%02d', dirname(__DIR__, 2), $this->year, $this->day);
+        return sprintf('%s/app/Solutions/%d/%02d', dirname(__DIR__, 2), $this->year, $this->day);
     }
 
     protected function getTestInputPath(): string
     {
-        return sprintf('%s/%d/%02d/test.txt', dirname(__DIR__, 2), $this->year, $this->day);
+        return sprintf('%s/app/Solutions/%d/%02d/test.txt', dirname(__DIR__, 2), $this->year, $this->day);
     }
 }

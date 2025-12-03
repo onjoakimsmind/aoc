@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Aoc\Commands;
+namespace AoC\Commands;
 
 use Codedungeon\PHPCliColors\Color;
 
@@ -36,7 +36,7 @@ class RunCommand extends Command
         }
         echo "...\n" . Color::RESET;
 
-        $namespace = sprintf('Y%d\\D%02d', $this->year, $this->day);
+        $namespace = sprintf('AoC\\Solutions\\Y%d\\D%02d', $this->year, $this->day);
 
         foreach ($parts as $part) {
             $partFile = $dayDir . "/{$part}.php";

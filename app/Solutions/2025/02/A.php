@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Y2025\D02;
+namespace AoC\Solutions\Y2025\D02;
 
-use Aoc\Testing\TestRunner;
+use AoC\Testing\TestRunner;
 
 class A
 {

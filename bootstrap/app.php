@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Clue\Commander\Router;
-use Aoc\Commands\CreateCommand;
-use Aoc\Commands\FetchCommand;
-use Aoc\Commands\RunCommand;
-use Aoc\Commands\TestCommand;
+use AoC\Commands\CreateCommand;
+use AoC\Commands\FetchCommand;
+use AoC\Commands\RunCommand;
+use AoC\Commands\TestCommand;
 use Codedungeon\PHPCliColors\Color;
 
 class App
