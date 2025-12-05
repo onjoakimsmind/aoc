@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Y2015\D01;
+namespace AoC\Solutions\Y2015\D10;
 
 use AoC\Solutions\BaseSolution;
-use Aoc\Testing\TestRunner;
+use AoC\Testing\TestRunner;
 
 class A extends BaseSolution
 {
-    private string $inputData;
+    use LookNSay;
+
+    protected string $inputData;
 
     public function __construct(string $inputData)
     {
@@ -18,16 +20,12 @@ class A extends BaseSolution
 
     public function solve(): int
     {
-        $floor = 0;
-        for ($i = 0; $i < strlen($this->inputData); $i++) {
-            if ($this->inputData[$i] === '(') {
-                $floor++;
-            } elseif ($this->inputData[$i] === ')') {
-                $floor--;
-            }
-        }
+        $input = $this->inputData;
 
-        return $floor;
+        for ($i = 0; $i < 40; $i++) {
+            $input = $this->lookNSay($input);
+        }
+        return strlen($input);
     }
 
     public function test(TestRunner $t, string $testInput): void

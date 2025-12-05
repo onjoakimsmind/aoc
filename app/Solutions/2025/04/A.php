@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace AoC\Solutions\Y2025\D04;
 
+use AoC\Solutions\BaseSolution;
 use AoC\Testing\TestRunner;
 
-class A
+class A extends BaseSolution
 {
-    private string $inputData;
+    protected string $inputData;
 
     public function __construct(string $inputData)
     {

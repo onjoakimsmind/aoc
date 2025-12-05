@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace AoC\Solutions\Y2025\D02;
 
+use AoC\Solutions\BaseSolution;
 use AoC\Testing\TestRunner;
 
-class B
+class B extends BaseSolution
 {
-    private string $inputData;
+    use Helper;
+
+    protected string $inputData;
 
     public function __construct(string $inputData)
     {
@@ -41,11 +44,5 @@ class B
     public function test(TestRunner $t, string $testInput): void
     {
         $t->assertEquals(4174379265, $this->solve(), 'Part B');
-    }
-
-    private function isRepeatedPatternAtLeastTwice(int $n): bool
-    {
-        $s = (string) $n;
-        return (bool) preg_match('/^(\d+)\1+$/', $s);
     }
 }

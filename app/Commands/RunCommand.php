@@ -45,6 +45,14 @@ class RunCommand extends Command
                 return 1;
             }
 
+            // Load any helper/trait files in the same directory first (excluding A.php and B.php)
+            foreach (glob(dirname($partFile) . '/*.php') as $file) {
+                $basename = basename($file);
+                if ($basename !== 'A.php' && $basename !== 'B.php') {
+                    require_once $file;
+                }
+            }
+            
             require_once $partFile;
 
             $className = $namespace . '\\' . $part;

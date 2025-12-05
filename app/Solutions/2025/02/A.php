@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace AoC\Solutions\Y2025\D02;
 
+use AoC\Solutions\BaseSolution;
 use AoC\Testing\TestRunner;
 
-class A
+class A extends BaseSolution
 {
-    private string $inputData;
+    use Helper;
+
+    protected string $inputData;
 
     public function __construct(string $inputData)
     {
@@ -41,21 +44,5 @@ class A
     public function test(TestRunner $t, string $testInput): void
     {
         $t->assertEquals(1227775554, $this->solve(), 'Part A');
-    }
-
-    private function isRepeatedTwice(int $number): bool
-    {
-        $s = (string)$number;
-        $len = strlen($s);
-
-        if ($len % 2 !== 0) {
-            return false;
-        }
-
-        $half = intdiv($len, 2);
-        $first = substr($s, 0, $half);
-        $second = substr($s, $half);
-
-        return $first === $second;
     }
 }

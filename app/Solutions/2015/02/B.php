@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Y2015\D02;
 
+use AoC\Solutions\BaseSolution;
+
 use Aoc\Testing\TestRunner;
 
-class B
+class B extends BaseSolution
 {
     private string $inputData;
 

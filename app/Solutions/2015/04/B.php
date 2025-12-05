@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace AoC\Solutions\Y2015\D04;
 
+use AoC\Solutions\BaseSolution;
+
 use AoC\Testing\TestRunner;
 use AoC\Traits\ParallelProcessing;
 
-class B
+class B extends BaseSolution
 {
     use ParallelProcessing;
 

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Y2015\D02;
+namespace AoC\Solutions\Y2015\D08;
 
 use AoC\Solutions\BaseSolution;
 
-use Aoc\Testing\TestRunner;
+use AoC\Testing\TestRunner;
 
-class A extends BaseSolution
+class B extends BaseSolution
 {
     private string $inputData;
 
@@ -20,17 +20,20 @@ class A extends BaseSolution
     public function solve(): int
     {
         $input = explode("\n", $this->inputData);
-        $sum = 0;
+        $strLen = 0;
+        $inMemoryLen = 0;
         foreach ($input as $line) {
-            [$w, $h, $l] = array_map('intval', explode('x', $line));
-            $smallest = min($w * $h, $h * $l, $l * $w);
-            $sum += (2 * $w * $h) + (2 * $h * $l) + (2 * $l * $w) + $smallest;
+            if (empty($line) || $line === '') {
+                continue;
+            }
+            $strLen += strlen($line);
+            $inMemoryLen += strlen('"' . addslashes($line) . '"');
         }
-        return $sum;
+        return $inMemoryLen - $strLen;
     }
 
     public function test(TestRunner $t, string $testInput): void
     {
-        $t->assertEquals(0, $this->solve(), 'Part A');
+        $t->assertEquals(19, $this->solve(), 'Part B');
     }
 }
