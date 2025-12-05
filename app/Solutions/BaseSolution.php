@@ -19,6 +19,11 @@ abstract class BaseSolution
 
     abstract public function test(TestRunner $t, string $testInput): void;
 
+    public function getInput(): string
+    {
+        return $this->inputData;
+    }
+
     protected function getLines(): array
     {
         return preg_split('/\R/', $this->inputData);
