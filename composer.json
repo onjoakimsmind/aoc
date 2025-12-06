@@ -4,6 +4,9 @@
     "psr-4": {
       "AoC\\": "app/"
     },
+    "classmap": [
+      "app/Solutions/"
+    ],
     "files": [
       "app/helpers.php"
     ]
