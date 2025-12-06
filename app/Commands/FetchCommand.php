@@ -25,13 +25,17 @@ class FetchCommand extends Command
 
     public function execute(): int
     {
-        // Load environment variables
-        $dotenv = Dotenv::createImmutable(dirname(__DIR__, 2));
-        $dotenv->load();
+        // Load environment variables from .env file if it exists
+        $envFile = dirname(__DIR__, 2) . '/.env';
+        if (file_exists($envFile)) {
+            $dotenv = Dotenv::createImmutable(dirname(__DIR__, 2));
+            $dotenv->load();
+        }
 
-        $session = $_ENV['AOC_SESSION'] ?? null;
+        // Check environment variable (works for both .env and GitHub Actions)
+        $session = getenv('AOC_SESSION') ?: ($_ENV['AOC_SESSION'] ?? null);
         if (!$session) {
-            echo Color::RED . "Error: " . Color::RESET . "AOC_SESSION not found in .env file\n";
+            echo Color::RED . "Error: " . Color::RESET . "AOC_SESSION not found in environment\n";
             return 1;
         }
 
