@@ -105,11 +105,30 @@ php aoc run                          # Run today's puzzle (both parts)
 php aoc run 2025/5                   # Run specific day (both parts)
 php aoc run 2025/5 -p A              # Run specific day, part A only
 php aoc run 2025/5 -p B              # Run specific day, part B only
+php aoc run 2025                     # Run ALL days for entire year (both parts)
+php aoc run 2025 -p A                # Run ALL days for year, part A only
+php aoc run -p B                     # Run today's puzzle, part B only
 
 # Reads real input from: app/Solutions/2025/05/input.txt
 # Runs solve() method on classes A and/or B
 # Shows results with timing
+# Year mode displays total execution time
 ```
+
+#### Create a trait
+
+Creates a shared trait for a specific day's solution:
+
+```bash
+php aoc trait 2025/5 Helper          # Create Helper.php trait for day 5
+
+# Creates:
+# - app/Solutions/2025/05/Helper.php (from Trait.php.stub)
+# - Namespace: AoC\Solutions\Y2025\D05
+# - Trait name: Helper
+```
+
+Traits are useful for sharing common logic between parts A and B, or for organizing complex solutions.
 
 ## File Structure
 
@@ -119,18 +138,23 @@ aoc/
 ├── .env                      # Environment configuration (gitignored)
 ├── .env.example              # Example environment file
 ├── app/
-│   ├── Commands/             # Command classes
-│   ├── Testing/              # Testing framework
-│   └── Solutions/            # All puzzle solutions
-│       └── YYYY/             # Year directories (e.g., 2025/)
-│           └── DD/           # Day directories (e.g., 01/, 02/)
-│               ├── A.php     # Part A solution
-│               ├── B.php     # Part B solution
-│               ├── input.txt # Puzzle input (from AOC)
-│               └── test.txt  # Test input (from examples)
+│   ├── Commands/             # Command classes (Create, Fetch, Run, Test, Trait)
+│   ├── Solutions/            # All puzzle solutions
+│   │   └── YYYY/             # Year directories (e.g., 2025/)
+│   │       └── DD/           # Day directories (e.g., 01/, 02/)
+│   │           ├── A.php     # Part A solution
+│   │           ├── B.php     # Part B solution
+│   │           ├── input.txt # Puzzle input (from AOC)
+│   │           ├── test.txt  # Test input (from examples)
+│   │           └── *.php     # Optional traits for shared logic
+│   ├── Testing/              # Testing framework (TestRunner, TestResult)
+│   ├── Traits/               # Global traits (ParallelProcessing, etc.)
+│   ├── BaseSolution.php      # Base class for all solutions
+│   └── helpers.php           # Helper functions (dump, dd)
 ├── bootstrap/                # Bootstrap files
 └── stubs/
-    └── Puzzle.php.stub       # Template for new puzzles
+    ├── Puzzle.php.stub       # Template for new puzzles
+    └── Trait.php.stub        # Template for traits
 ```
 
 ## Step-by-Step Example
@@ -172,11 +196,12 @@ declare(strict_types=1);
 
 namespace AoC\Solutions\Y2025\D01;
 
-use Aoc\Testing\TestRunner;
+use AoC\BaseSolution;
+use AoC\Testing\TestRunner;
 
-class A
+class A extends BaseSolution
 {
-    private string $inputData;
+    protected string $inputData;
 
     public function __construct(string $inputData)
     {
@@ -186,10 +211,12 @@ class A
     public function solve(): int
     {
         // Your solution for part A
+        $lines = explode("\n", $this->inputData);
+        // ... implement your logic
         return $result;
     }
 
-    public function test(TestRunner $t, string $testInput): void
+    public function test(TestRunner $t): void
     {
         $t->assertEquals(142, $this->solve(), 'Part A');
     }
@@ -221,7 +248,7 @@ php aoc run 2025/1            # Run your solution
 
 ## Solution Format
 
-Each day's solution consists of two separate files (`A.php` and `B.php`) for parts A and B:
+Each day's solution consists of two separate files (`A.php` and `B.php`) for parts A and B, both extending the `BaseSolution` class:
 
 ### Part A (app/Solutions/2025/01/A.php)
 
@@ -232,11 +259,12 @@ declare(strict_types=1);
 
 namespace AoC\Solutions\Y2025\D01;
 
-use Aoc\Testing\TestRunner;
+use AoC\BaseSolution;
+use AoC\Testing\TestRunner;
 
-class A
+class A extends BaseSolution
 {
-    private string $inputData;
+    protected string $inputData;
 
     public function __construct(string $inputData)
     {
@@ -246,10 +274,11 @@ class A
     public function solve(): int
     {
         // Your solution for part A
+        // Access input via $this->inputData
         return $result;
     }
 
-    public function test(TestRunner $t, string $testInput): void
+    public function test(TestRunner $t): void
     {
         // Tests for part A
         $t->assertEquals(expected, $this->solve(), 'Part A description');
@@ -266,11 +295,12 @@ declare(strict_types=1);
 
 namespace AoC\Solutions\Y2025\D01;
 
-use Aoc\Testing\TestRunner;
+use AoC\BaseSolution;
+use AoC\Testing\TestRunner;
 
-class B
+class B extends BaseSolution
 {
-    private string $inputData;
+    protected string $inputData;
 
     public function __construct(string $inputData)
     {
@@ -280,14 +310,53 @@ class B
     public function solve(): int
     {
         // Your solution for part B
+        // Access input via $this->inputData
         return $result;
     }
 
-    public function test(TestRunner $t, string $testInput): void
+    public function test(TestRunner $t): void
     {
         // Tests for part B
         $t->assertEquals(expected, $this->solve(), 'Part B description');
     }
+}
+```
+
+### Using Traits for Shared Logic
+
+If parts A and B share common logic, create a trait:
+
+```bash
+php aoc trait 2025/1 Helper
+```
+
+This creates `app/Solutions/2025/01/Helper.php`:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace AoC\Solutions\Y2025\D01;
+
+trait Helper
+{
+    // Shared methods between A and B
+    private function parseInput(): array
+    {
+        return explode("\n", $this->inputData);
+    }
+}
+```
+
+Then use it in both A and B:
+
+```php
+class A extends BaseSolution
+{
+    use Helper;
+    
+    // Now you can use parseInput() in solve()
 }
 ```
 
@@ -300,6 +369,7 @@ class B
   - `AoC\Solutions\Y2024\D15` for 2024/15
 - Namespaces are automatically generated by `create` and `fetch` commands
 - Each part has its own file for better organization and independent testing
+- Traits in the same directory automatically use the same namespace
 
 ## Testing Framework
 
@@ -320,7 +390,7 @@ app/Solutions/2025/01/
 The `TestRunner` class provides assertion methods:
 
 ```php
-public function test(TestRunner $t, string $testInput): void {
+public function test(TestRunner $t): void {
     // Compare values
     $t->assertEquals(expected, actual, 'Description');
 
@@ -329,6 +399,8 @@ public function test(TestRunner $t, string $testInput): void {
     $t->assertFalse(empty($data), 'Data should not be empty');
 }
 ```
+
+Note: The test method receives only the `TestRunner` instance. Test input is loaded from `test.txt` and passed to your class constructor automatically.
 
 ### Test Output
 
@@ -381,3 +453,77 @@ This is useful when:
 - Run tests frequently while developing your solution
 - Test each part separately as you develop them
 - Use `dump()` and `dd()` (Laravel helpers) for debugging
+
+## Advanced Features
+
+### BaseSolution Class
+
+All solutions extend `AoC\BaseSolution`, which provides:
+- Consistent interface for solutions
+- Protected `$inputData` property accessible in extending classes
+- Easy extensibility for adding global helper methods
+
+### Traits
+
+Create reusable traits for shared logic:
+
+```bash
+php aoc trait 2025/5 GridHelper
+```
+
+Use in your solutions:
+
+```php
+class A extends BaseSolution
+{
+    use GridHelper;
+    // ...
+}
+```
+
+### Global Traits
+
+Located in `app/Traits/`, available to all solutions:
+
+- `ParallelProcessing` - For CPU-intensive tasks using `pcntl_fork()`
+
+Example:
+
+```php
+use AoC\Traits\ParallelProcessing;
+
+class A extends BaseSolution
+{
+    use ParallelProcessing;
+    
+    public function solve(): int
+    {
+        $ranges = [...]; // Array of work ranges
+        $results = $this->parallel($ranges, function($range) {
+            // Process range
+            return $result;
+        });
+        return array_sum($results);
+    }
+}
+```
+
+### Helper Functions
+
+Available globally via `app/helpers.php`:
+
+- `dump($var)` - Pretty print variable (Laravel style)
+- `dd($var)` - Dump and die (Laravel style)
+
+### GitHub Actions
+
+The repository includes a workflow that:
+- Runs on pushes to `YYYY/DD/*` paths
+- Installs dependencies
+- Runs tests and solutions for changed puzzles
+- Uses `AOC_SESSION` secret for fetching inputs
+
+Set up in your repo:
+1. Go to Settings → Secrets → Actions
+2. Add `AOC_SESSION` with your session cookie
+3. Push changes to any `YYYY/DD/` directory to trigger the workflow

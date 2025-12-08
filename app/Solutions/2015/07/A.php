@@ -10,7 +10,7 @@ use AoC\Testing\TestRunner;
 
 class A extends BaseSolution
 {
-    private string $inputData;
+    protected string $inputData;
 
     public function __construct(string $inputData)
     {

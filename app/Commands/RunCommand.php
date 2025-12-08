@@ -9,15 +9,21 @@ use Codedungeon\PHPCliColors\Color;
 class RunCommand extends Command
 {
     private ?string $part;
+    private bool $runAllDays;
 
-    public function __construct(int $year, int $day, ?string $part = null)
+    public function __construct(int $year, int $day = 0, ?string $part = null, bool $runAllDays = false)
     {
         parent::__construct($year, $day);
         $this->part = $part;
+        $this->runAllDays = $runAllDays;
     }
 
     public function execute(): int
     {
+        if ($this->runAllDays) {
+            return $this->runAllDays();
+        }
+
         $dayDir = $this->getDayDirectory();
         $inputPath = $this->getInputPath();
 
@@ -71,6 +77,46 @@ class RunCommand extends Command
             echo Color::DARK_GRAY . " (took " . number_format($duration * 1000, 2) . "ms)" . Color::RESET;
             echo "\n";
         }
+
+        return 0;
+    }
+
+    private function runAllDays(): int
+    {
+        $solutionsDir = __DIR__ . '/../Solutions/' . $this->year;
+        
+        if (!is_dir($solutionsDir)) {
+            echo Color::RED . "Error: " . Color::RESET . "No solutions found for year {$this->year}\n";
+            return 1;
+        }
+
+        echo Color::CYAN . "Running all days for {$this->year}...\n" . Color::RESET;
+        
+        $days = [];
+        foreach (glob($solutionsDir . '/*', GLOB_ONLYDIR) as $dayDir) {
+            $day = (int) basename($dayDir);
+            if ($day > 0 && $day <= 25) {
+                $days[] = $day;
+            }
+        }
+        sort($days);
+
+        $totalTime = 0;
+        foreach ($days as $day) {
+            $dayObj = new RunCommand($this->year, $day, $this->part);
+            $start = microtime(true);
+            $result = $dayObj->execute();
+            $duration = microtime(true) - $start;
+            $totalTime += $duration;
+            
+            if ($result !== 0) {
+                echo Color::YELLOW . "Day {$day} had errors, continuing...\n" . Color::RESET;
+            }
+            echo "\n";
+        }
+
+        echo Color::CYAN . "Total time: " . Color::RESET;
+        echo Color::BOLD . number_format($totalTime * 1000, 2) . "ms" . Color::RESET . "\n";
 
         return 0;
     }

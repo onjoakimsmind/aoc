@@ -13,7 +13,7 @@ class B extends BaseSolution
 {
     use ParallelProcessing;
 
-    private string $inputData;
+    protected string $inputData;
 
     public function __construct(string $inputData)
     {

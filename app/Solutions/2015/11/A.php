@@ -13,7 +13,7 @@ class A extends BaseSolution
 
     public function solve(): string
     {
-        $password = trim($this->inputData);
+        $password = trim($this->getInput());
 
         do {
             $password = $this->incrementPassword($password);

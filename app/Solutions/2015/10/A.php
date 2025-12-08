@@ -11,11 +11,11 @@ class A extends BaseSolution
 {
     use LookNSay;
 
-    protected string $inputData;
+    protected string $input;
 
-    public function __construct(string $inputData)
+    public function __construct(string $input)
     {
-        $this->inputData = trim($inputData);
+        $this->inputData = trim($input);
     }
 
     public function solve(): int

@@ -9,11 +9,11 @@ use AoC\Testing\TestRunner;
 
 class A extends BaseSolution
 {
-    protected string $inputData;
+    protected string $input;
 
-    public function __construct(string $inputData)
+    public function __construct(string $input)
     {
-        $this->inputData = trim($inputData);
+        $this->inputData = trim($input);
     }
 
     public function solve(): int

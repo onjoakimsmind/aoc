@@ -8,6 +8,7 @@ use AoC\Commands\FetchCommand;
 use AoC\Commands\RunCommand;
 use AoC\Commands\TestCommand;
 use AoC\Commands\TraitCommand;
+use AoC\Commands\YearCommand;
 use Codedungeon\PHPCliColors\Color;
 
 class App
@@ -53,7 +54,22 @@ class App
             return $cmd->execute();
         });
 
-        $this->router->add('run [<date>] [--year|-y <year:uint>] [--day|-d <day:uint>] [--part|-p <part>]', function (array $args) {
+        // run entire year
+        $this->router->add('run <year:uint> [--part|-p <part>]', function (array $args) {
+            $year = (int) $args['year'];
+            $part = isset($args['part']) ? strtoupper($args['part']) : null;
+
+            if ($part !== null && !in_array($part, ['A', 'B'])) {
+                echo Color::RED . "Error: " . Color::RESET . "Part must be A or B\n";
+                return 1;
+            }
+
+            $cmd = new RunCommand($year, 0, $part, true);
+            return $cmd->execute();
+        });
+
+        // run with date
+        $this->router->add('run <date> [--part|-p <part>]', function (array $args) {
             [$year, $day] = $this->parseDate($args);
             $part = isset($args['part']) ? strtoupper($args['part']) : null;
 
@@ -66,7 +82,36 @@ class App
             return $cmd->execute();
         });
 
-        $this->router->add('test [<date>] [--year|-y <year:uint>] [--day|-d <day:uint>] [--part|-p <part>]', function (array $args) {
+        // run without date (uses today)
+        $this->router->add('run [--part|-p <part>]', function (array $args) {
+            [$year, $day] = $this->parseDate($args);
+            $part = isset($args['part']) ? strtoupper($args['part']) : null;
+
+            if ($part !== null && !in_array($part, ['A', 'B'])) {
+                echo Color::RED . "Error: " . Color::RESET . "Part must be A or B\n";
+                return 1;
+            }
+
+            $cmd = new RunCommand($year, $day, $part);
+            return $cmd->execute();
+        });
+
+        // test with date
+        $this->router->add('test <date> [--part|-p <part>]', function (array $args) {
+            [$year, $day] = $this->parseDate($args);
+            $part = isset($args['part']) ? strtoupper($args['part']) : null;
+
+            if ($part !== null && !in_array($part, ['A', 'B'])) {
+                echo Color::RED . "Error: " . Color::RESET . "Part must be A or B\n";
+                return 1;
+            }
+
+            $cmd = new TestCommand($year, $day, $part);
+            return $cmd->execute();
+        });
+
+        // test without date (uses today)
+        $this->router->add('test [--part|-p <part>]', function (array $args) {
             [$year, $day] = $this->parseDate($args);
             $part = isset($args['part']) ? strtoupper($args['part']) : null;
 
@@ -81,6 +126,34 @@ class App
 
         $this->router->add('trait <date> <name>', function (array $args) {
             $cmd = new TraitCommand($args['date'], $args['name']);
+            return $cmd->execute();
+        });
+
+        // year command - run all days for a year
+        $this->router->add('year <year:uint> [--part|-p <part>]', function (array $args) {
+            $year = (int)$args['year'];
+            $part = isset($args['part']) ? strtoupper($args['part']) : null;
+
+            if ($part !== null && !in_array($part, ['A', 'B'])) {
+                echo Color::RED . "Error: " . Color::RESET . "Part must be A or B\n";
+                return 1;
+            }
+
+            $cmd = new YearCommand($year, $part);
+            return $cmd->execute();
+        });
+
+        // year command without year (uses current year)
+        $this->router->add('year [--part|-p <part>]', function (array $args) {
+            $year = 2025; // Default to current AoC year
+            $part = isset($args['part']) ? strtoupper($args['part']) : null;
+
+            if ($part !== null && !in_array($part, ['A', 'B'])) {
+                echo Color::RED . "Error: " . Color::RESET . "Part must be A or B\n";
+                return 1;
+            }
+
+            $cmd = new YearCommand($year, $part);
             return $cmd->execute();
         });
 
@@ -123,6 +196,7 @@ class App
         echo "  " . Color::LIGHT_PURPLE . "fetch [YYYY/DD]" . Color::RESET . "          Fetch puzzle input from AOC\n";
         echo "  " . Color::LIGHT_PURPLE . "run [YYYY/DD]" . Color::RESET . "            Run puzzle solver\n";
         echo "  " . Color::LIGHT_PURPLE . "test [YYYY/DD]" . Color::RESET . "           Run puzzle tests\n";
+        echo "  " . Color::LIGHT_PURPLE . "year [YYYY]" . Color::RESET . "              Run all days for a year\n";
         echo "  " . Color::LIGHT_PURPLE . "trait <YYYY/DD> <name>" . Color::RESET . "  Create a trait for a solution\n\n";
         
         echo Color::YELLOW . "Date Format:\n" . Color::RESET;
@@ -138,6 +212,8 @@ class App
         echo "  php aoc run 2024/5 -p A        " . Color::DARK_GRAY . "# Run only part A\n" . Color::RESET;
         echo "  php aoc test 2024/5            " . Color::DARK_GRAY . "# Run tests for both parts\n" . Color::RESET;
         echo "  php aoc test 2024/5 -p A       " . Color::DARK_GRAY . "# Run only part A tests\n" . Color::RESET;
+        echo "  php aoc year 2015              " . Color::DARK_GRAY . "# Run all days for 2015\n" . Color::RESET;
+        echo "  php aoc year 2015 -p A         " . Color::DARK_GRAY . "# Run all part A for 2015\n" . Color::RESET;
         echo "  php aoc trait 2024/5 Helper    " . Color::DARK_GRAY . "# Create Helper trait for Dec 5\n" . Color::RESET;
     }
 }

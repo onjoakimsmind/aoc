@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace AoC\Solutions\Y2015\D03;
 
 use AoC\Solutions\BaseSolution;
-
 use AoC\Testing\TestRunner;
 
 class A extends BaseSolution
 {
-    private string $inputData;
+    protected string $input;
 
-    public function __construct(string $inputData)
+    public function __construct(string $input)
     {
-        $this->inputData = trim($inputData);
+        $this->inputData = trim($input);
     }
 
     public function solve(?string $input = null): int

@@ -8,11 +8,11 @@ use AoC\Testing\TestRunner;
 
 abstract class BaseSolution
 {
-    protected string $inputData;
+    protected string $input;
 
-    public function __construct(string $inputData)
+    public function __construct(string $input)
     {
-        $this->inputData = trim($inputData);
+        $this->input = trim($input);
     }
 
     abstract public function solve(): mixed;
@@ -21,22 +21,22 @@ abstract class BaseSolution
 
     public function getInput(): string
     {
-        return $this->inputData;
+        return $this->input;
     }
 
     protected function getLines(): array
     {
-        return preg_split('/\R/', $this->inputData);
+        return preg_split('/\R/', $this->input);
     }
 
     protected function getBlocks(string $delimiter = "\n\n"): array
     {
-        return explode($delimiter, $this->inputData);
+        return explode($delimiter, $this->input);
     }
 
     protected function getIntegers(): array
     {
-        preg_match_all('/-?\d+/', $this->inputData, $matches);
+        preg_match_all('/-?\d+/', $this->input, $matches);
         return array_map('intval', $matches[0]);
     }
 }

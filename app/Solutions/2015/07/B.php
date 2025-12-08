@@ -12,7 +12,7 @@ require_once __DIR__ . '/A.php';
 
 class B extends BaseSolution
 {
-    private string $inputData;
+    protected string $inputData;
 
     public function __construct(string $inputData)
     {
